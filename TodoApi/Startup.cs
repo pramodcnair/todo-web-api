@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using TodoApi.Data;
+using Microsoft.OpenApi.Models;
+using MediatR;
 
-namespace TODO_Api
+namespace TodoApi
 {
     public class Startup
     {
@@ -30,6 +27,13 @@ namespace TODO_Api
             services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
                 .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            var connectionString = ConfigurationExtensions.GetConnectionString(Configuration, "DefaultConnection");
+            services.AddDbContext<TodoContext>(options => options.UseSqlServer(connectionString));
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("version1", new OpenApiInfo { Title = "Todo Api", Version = "1.0.0" });
+            });
+            services.AddMediatR(typeof(Startup).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,7 +51,17 @@ namespace TODO_Api
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/version1/swagger.json", "Todo API");
+            });
+
             app.UseMvc();
+
         }
+
     }
 }
