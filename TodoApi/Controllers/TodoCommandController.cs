@@ -7,7 +7,7 @@ using TodoApi.Queries;
 
 namespace TodoApi.Controllers
 {
-   // [Authorize]
+    // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TodoCommandController : ControllerBase
@@ -17,7 +17,7 @@ namespace TodoApi.Controllers
         {
             mediator = _mediator;
         }
-        [HttpPost]
+        [HttpPost("add")]
         public async Task<ActionResult<Todo>> Post([FromBody] TodoAddCommand todoAddCommand)
         {
             todoAddCommand.CreatedBy = User.Identity.Name;
@@ -25,23 +25,18 @@ namespace TodoApi.Controllers
             return Ok(todo);
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Todo>> Put(int id, [FromBody] TodoUpdateCommand todoUpdateCommand)
+        [HttpPut("update")]
+        public async Task<ActionResult<Todo>> Put([FromBody] TodoUpdateCommand todoUpdateCommand)
         {
-            todoUpdateCommand.Id = id;
             todoUpdateCommand.UpdatedBy = User.Identity.Name;
             var todo = await mediator.Send(todoUpdateCommand);
             return Ok(todo);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [HttpDelete("delete")]
+        public async Task<ActionResult> Delete([FromBody] TodoDeleteCommand todoDeleteCommand)
         {
-            var todoDeleteCommand = new TodoDeleteCommand
-            {
-                Id = id,
-                UpdatedBy = User.Identity.Name
-            };
+            todoDeleteCommand.UpdatedBy = User.Identity.Name;
             await mediator.Send(todoDeleteCommand);
             return Ok();
         }

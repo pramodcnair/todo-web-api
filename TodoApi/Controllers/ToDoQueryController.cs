@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TodoApi.Data;
 using TodoApi.Queries;
+using TodoApi.Services;
 
 namespace TodoApi.Controllers
 {
@@ -11,21 +12,21 @@ namespace TodoApi.Controllers
     [ApiController]
     public class TodoQueryController : ControllerBase
     {
-        private readonly TodoContext todoContext;
-        public TodoQueryController(TodoContext _todoContext)
+        private readonly ITodoRepositoryService todoRepositoryService;
+        public TodoQueryController(ITodoRepositoryService _todoRepositoryService)
         {
-            todoContext = _todoContext;
+            todoRepositoryService = _todoRepositoryService;
         }
         [HttpGet]
         public ActionResult<IEnumerable<Todo>> Get()
         {
-            return Ok(todoContext.TodoList.Where(t => t.IsActive));
+            return Ok(todoRepositoryService.GetAllItems());
         }
 
         [HttpGet("{id}")]
         public ActionResult<Todo> Get(int id)
         {
-            return Ok(todoContext.TodoList.Where(t => t.IsActive && t.Id == id).SingleOrDefault());
+            return Ok(todoRepositoryService.GetItemById(id));
         }
     }
 }

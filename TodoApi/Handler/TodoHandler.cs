@@ -7,16 +7,19 @@ using System.Threading.Tasks;
 using TodoApi.Commands;
 using TodoApi.Data;
 using TodoApi.Queries;
+using TodoApi.Services;
 
 namespace TodoApi.Handler
 {
     public class TodoHandler : IRequestHandler<TodoAddCommand, Todo>, IRequestHandler<TodoUpdateCommand, Todo>, IRequestHandler<TodoDeleteCommand, Todo>
     {
-        private readonly TodoContext todoContext;
-        public TodoHandler(TodoContext _todoContext)
+        private readonly ITodoRepositoryService todoRepositoryService;
+
+        public TodoHandler(ITodoRepositoryService _todoRepositoryService)
         {
-            todoContext = _todoContext;
+            todoRepositoryService = _todoRepositoryService;
         }
+
         public async Task<Todo> Handle(TodoAddCommand request, CancellationToken cancellationToken)
         {
             var todo = new Todo
@@ -28,31 +31,28 @@ namespace TodoApi.Handler
                 UpdatedOn = DateTime.UtcNow,
                 IsActive = true
             };
-            todoContext.Add(todo);
-            await todoContext.SaveChangesAsync();
-            return todo;
+            return await todoRepositoryService.SaveItemAsync(todo);
         }
+
         public async Task<Todo> Handle(TodoUpdateCommand request, CancellationToken cancellationToken)
         {
-            var todo = await todoContext.TodoList.FindAsync(request.Id);
-            todo.Description = request.Description;
-            todo.UpdatedBy = request.UpdatedBy;
-            todo.UpdatedOn = DateTime.UtcNow;
-            await todoContext.SaveChangesAsync();
-            return todo;
-
+            var todo = new Todo
+            {
+                Id = request.Id,
+                Description = request.Description,
+                UpdatedBy = request.UpdatedBy
+            };
+            return await todoRepositoryService.UpdateItemAsync(todo);
         }
 
         public async Task<Todo> Handle(TodoDeleteCommand request, CancellationToken cancellationToken)
         {
-            var todo = await todoContext.TodoList.FindAsync(request.Id);
-            todo.UpdatedBy = request.UpdatedBy;
-            todo.UpdatedOn = DateTime.UtcNow;
-            todo.IsActive = false;
-            await todoContext.SaveChangesAsync();
-            return todo;
+            var todo = new Todo
+            {
+                Id = request.Id,
+                UpdatedBy = request.UpdatedBy,
+            };
+            return await todoRepositoryService.DeleteItemAsync(todo);
         }
-
-
     }
 }
