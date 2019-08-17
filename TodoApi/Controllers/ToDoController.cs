@@ -10,23 +10,30 @@ using TodoApi.Queries;
 
 namespace TodoApi.Controllers
 {
-    [Authorize]
+    //  [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class ToDoCommandController : ControllerBase
+    public class ToDoController : ControllerBase
     {
         private readonly IMediator mediator;
         private readonly TodoContext todoContext;
-        public ToDoCommandController(IMediator _mediator, TodoContext _todoContext)
+        public ToDoController(IMediator _mediator, TodoContext _todoContext)
         {
             mediator = _mediator;
             todoContext = _todoContext;
         }
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<IEnumerable<Todo>> Get()
         {
             return Ok(todoContext.TodoList.Where(t => t.IsActive));
         }
+
+        [HttpGet("{id}")]
+        public ActionResult<Todo> Get(int id)
+        {
+            return Ok(todoContext.TodoList.Where(t => t.IsActive && t.Id == id).SingleOrDefault());
+        }
+
 
         [HttpPost]
         public async Task<ActionResult<Todo>> Post([FromBody] TodoAddCommand todoAddCommand)

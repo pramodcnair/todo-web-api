@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TodoApi.Data;
 using Microsoft.OpenApi.Models;
-using MediatR;
+using TodoApi.Data;
 
 namespace TodoApi
 {
@@ -34,6 +35,10 @@ namespace TodoApi
                 c.SwaggerDoc("version1", new OpenApiInfo { Title = "Todo Api", Version = "1.0.0" });
             });
             services.AddMediatR(typeof(Startup).Assembly);
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,8 +63,9 @@ namespace TodoApi
             {
                 c.SwaggerEndpoint("/swagger/version1/swagger.json", "Todo API");
             });
-
+            app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             app.UseMvc();
+
 
         }
 
