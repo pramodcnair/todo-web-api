@@ -1,40 +1,22 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TodoApi.Commands;
-using TodoApi.Data;
 using TodoApi.Queries;
 
 namespace TodoApi.Controllers
 {
-    //  [Authorize]
+   // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class ToDoController : ControllerBase
+    public class TodoCommandController : ControllerBase
     {
         private readonly IMediator mediator;
-        private readonly TodoContext todoContext;
-        public ToDoController(IMediator _mediator, TodoContext _todoContext)
+        public TodoCommandController(IMediator _mediator)
         {
             mediator = _mediator;
-            todoContext = _todoContext;
         }
-        [HttpGet]
-        public ActionResult<IEnumerable<Todo>> Get()
-        {
-            return Ok(todoContext.TodoList.Where(t => t.IsActive));
-        }
-
-        [HttpGet("{id}")]
-        public ActionResult<Todo> Get(int id)
-        {
-            return Ok(todoContext.TodoList.Where(t => t.IsActive && t.Id == id).SingleOrDefault());
-        }
-
-
         [HttpPost]
         public async Task<ActionResult<Todo>> Post([FromBody] TodoAddCommand todoAddCommand)
         {
