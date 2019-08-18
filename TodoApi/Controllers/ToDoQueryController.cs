@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using TodoApi.Data;
@@ -7,7 +8,7 @@ using TodoApi.Services;
 
 namespace TodoApi.Controllers
 {
-    //  [Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TodoQueryController : ControllerBase

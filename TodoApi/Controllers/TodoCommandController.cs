@@ -7,7 +7,7 @@ using TodoApi.Queries;
 
 namespace TodoApi.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TodoCommandController : ControllerBase
